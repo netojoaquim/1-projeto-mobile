@@ -1,11 +1,33 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, FlatList } from "react-native";
 import { Avatar, Text, Input } from "react-native-elements";
-import { Button } from "@rneui/themed";
+import { Button, ListItem } from "@rneui/themed";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { Ionicons } from '@expo/vector-icons';
 
 const Stack = createStackNavigator();
+const DATA = [
+  {
+    id: '1',
+    title: 'joao cleber',
+    number: "81996887511",
+    avatar: 'https://randomuser.me/api/portraits/men/36.jpg'
+  },
+  {
+    id: '2',
+    title: 'ana adalia',
+    number: "81996887511",
+    avatar: 'https://randomuser.me/api/portraits/women/42.jpg'
+  },
+  {
+    id: '3',
+    title: 'maria shopie',
+    number: "81996887511",
+    avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
+  },
+];
+
 
 const Login = ({ navigation }) => {
   return (
@@ -29,7 +51,7 @@ const Login = ({ navigation }) => {
       </View>
 
       <View style={styles.ButtomContainer}>
-        <Button
+        <Button onPress={() => navigation.navigate("Lista")}
           buttonStyle={{
             marginBottom: 30,
           }}
@@ -41,8 +63,8 @@ const Login = ({ navigation }) => {
         </Button>
       </View>
       <Button type="clear" onPress={() => navigation.navigate("Redefinir")} buttonStyle={{
-            marginTop: 50,
-          }}>
+        marginTop: 50,
+      }}>
         Esqueceu a senha?
       </Button>
     </View>
@@ -55,6 +77,8 @@ const Cadastro = ({ navigation }) => {
       <View style={styles.formContainer}>
         <Text style={styles.label}>Nome</Text>
         <Input placeholder="Nome" containerStyle={styles.emailContainer} />
+        <Text style={styles.label}>Cpf</Text>
+        <Input placeholder="CPF" containerStyle={styles.cpfContainer} />
         <Text style={styles.label}>Email</Text>
         <Input placeholder="Email" containerStyle={styles.emailContainer} />
         <Text style={styles.label}>Senha</Text>
@@ -67,11 +91,28 @@ const Cadastro = ({ navigation }) => {
           buttonStyle={{
             marginBottom: 20,
           }}
-        >
-          Cadastrar
+        >Salvar
         </Button>
       </View>
     </View>
+  );
+};
+
+const Lista = () => {
+  return (
+    <FlatList
+    data={DATA}
+    keyExtractor={(item) => item.id}
+    renderItem={({ item }) => (
+      <ListItem bottomDivider>
+        <Avatar source={{ uri: item.avatar }} rounded />
+        <ListItem.Content>
+          <ListItem.Title>{item.title}</ListItem.Title>
+          <ListItem.Subtitle>{item.number}</ListItem.Subtitle>
+        </ListItem.Content>
+      </ListItem>
+    )}
+  />
   );
 };
 const Redefinir = ({ navigation }) => {
@@ -114,6 +155,9 @@ const styles = StyleSheet.create({
   senhaContainer: {
     marginBottom: 10,
   },
+  cpfContainer: {
+    marginBottom: 10,
+  },
   label: {
     fontSize: 16,
     fontWeight: "bold",
@@ -121,15 +165,34 @@ const styles = StyleSheet.create({
   ButtomContainer: {
     width: "40%"
   },
+  item: {
+    backgroundColor: "#ffff",
+    padding: 5,
+    marginBottom: 8,
+    
+  },
+  title: {
+    fontSize: 25,
+  },
 });
 
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
         <Stack.Screen name="Cadastro" component={Cadastro} />
         <Stack.Screen name="Redefinir" component={Redefinir} />
+        <Stack.Screen name="Lista" component={Lista} options={{
+          headerRight: () => (
+            <View style={{ marginRight: 15 }}>
+                <Ionicons size={"large"}
+                  name="add-circle"
+                  onPress={() => Alert.alert("Configurações clicadas!")}
+                />
+              </View>
+          ),
+        }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
