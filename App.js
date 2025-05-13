@@ -4,8 +4,10 @@ import { Avatar, Text, Input } from "react-native-elements";
 import { Button, ListItem } from "@rneui/themed";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Ionicons } from '@expo/vector-icons';
-import { NavigationContainer,useNavigation,useRoute } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useRoute } from '@react-navigation/native';
 import { useState } from "react";
+import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword } from 'firebase/auth';
+import { app, analytics } from './Banco.js';
 
 const Stack = createStackNavigator();
 
@@ -14,27 +16,44 @@ const DATA = [
     id: '1',
     name: 'joao cleber',
     number: "81996887511",
-    mail:"joao@gmail.com",
+    mail: "joao@gmail.com",
     avatar: 'https://randomuser.me/api/portraits/men/36.jpg'
   },
   {
     id: '2',
     name: 'ana adalia',
     number: "81996887511",
-    mail:"ana@gmail.com",
+    mail: "ana@gmail.com",
     avatar: 'https://randomuser.me/api/portraits/women/42.jpg'
   },
   {
     id: '3',
     name: 'maria shopie',
     number: "81996887511",
-    mail:"maria@gmail.com",
+    mail: "maria@gmail.com",
     avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
   },
 ];
 
 
 const Login = ({ navigation }) => {
+
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+  const botaoLogin = async () => {
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, email, senha)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        navigation.navigate('Lista')
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
+  }
   return (
     <View style={styles.container}>
       <Avatar
@@ -46,17 +65,14 @@ const Login = ({ navigation }) => {
       />
       <View style={styles.formContainer}>
         <Text style={styles.label}>Email</Text>
-        <Input placeholder="Email" containerStyle={styles.emailContainer} />
+        <Input placeholder="Email" value={email} onChangeText={setEmail} containerStyle={styles.emailContainer} />
         <Text style={styles.label}>Senha</Text>
-        <Input
-          placeholder="Senha"
-          secureTextEntry={true}
-          containerStyle={styles.senhaContainer}
+        <Input placeholder="Senha" value={senha} onChangeText={setSenha} secureTextEntry={true} containerStyle={styles.senhaContainer}
         />
       </View>
 
       <View style={styles.ButtomContainer}>
-        <Button onPress={() => navigation.navigate("Lista")}
+        <Button onPress={botaoLogin}
           buttonStyle={{
             marginBottom: 30,
           }}
@@ -77,6 +93,24 @@ const Login = ({ navigation }) => {
 };
 
 const Cadastro = ({ navigation }) => {
+
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+  const botaoCadastro = async () => {
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, email, senha)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+  }
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
@@ -85,14 +119,14 @@ const Cadastro = ({ navigation }) => {
         <Text style={styles.label}>Cpf</Text>
         <Input placeholder="CPF" containerStyle={styles.cpfContainer} />
         <Text style={styles.label}>Email</Text>
-        <Input placeholder="Email" containerStyle={styles.emailContainer} />
+        <Input placeholder="Email" onChangeText={setEmail} containerStyle={styles.emailContainer} />
         <Text style={styles.label}>Senha</Text>
-        <Input placeholder="Senha" containerStyle={styles.senhaContainer} />
+        <Input placeholder="Senha" onChangeText={setSenha} containerStyle={styles.senhaContainer} />
       </View>
 
       <View style={styles.ButtomContainer}>
         <Button
-          onPress={() => navigation.navigate("Login")}
+          onPress={botaoCadastro}
           buttonStyle={{
             marginBottom: 20,
           }}
@@ -130,7 +164,8 @@ const Lista = () => {
             number: item.number,
             mail: item.mail,
             avatar: item.avatar,
-            id: item.id })}
+            id: item.id
+          })}
         >
           <Avatar source={{ uri: item.avatar }} />
           <ListItem.Content>
@@ -170,7 +205,7 @@ const Contato = ({ navigation }) => {
 };
 
 const Alteracontato = () => {
-  const route= useRoute()
+  const route = useRoute()
   const { name: initialName, number: initialNumber, mail: initialMail } = route.params;
 
   const [name, setName] = useState(initialName);
@@ -277,7 +312,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffff",
     padding: 5,
     marginBottom: 8,
-    
+
   },
   title: {
     fontSize: 25,
@@ -289,11 +324,11 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name="Cadastro" component={Cadastro} options={{ headerTitleAlign: 'center', title: 'Usuário' }}/>
-        <Stack.Screen name="Redefinir" component={Redefinir} options={{headerTitleAlign: 'center'}} />
-        <Stack.Screen name="Lista" component={Lista} options={{headerTitleAlign: 'center', title: 'Lista de Contatos' }}/>
-        <Stack.Screen name="Contato" component={Contato}  options={{headerTitleAlign: 'center'}}/>
-        <Stack.Screen name="Alteracontato" component={Alteracontato} options={{headerTitleAlign: 'center', title:'  Contato' }} />
+        <Stack.Screen name="Cadastro" component={Cadastro} options={{ headerTitleAlign: 'center', title: 'Usuário' }} />
+        <Stack.Screen name="Redefinir" component={Redefinir} options={{ headerTitleAlign: 'center' }} />
+        <Stack.Screen name="Lista" component={Lista} options={{ headerTitleAlign: 'center', title: 'Lista de Contatos' }} />
+        <Stack.Screen name="Contato" component={Contato} options={{ headerTitleAlign: 'center' }} />
+        <Stack.Screen name="Alteracontato" component={Alteracontato} options={{ headerTitleAlign: 'center', title: '  Contato' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
